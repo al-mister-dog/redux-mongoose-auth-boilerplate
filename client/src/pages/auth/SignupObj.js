@@ -20,6 +20,7 @@ export default function SignUp() {
     useSelector(userSelector);
   const dispatch = useDispatch();
   const [helperText, setHelperText] = useState("");
+  const [helperTextColor, setHelperTextColor] = useState("");
 
   const [signupValues, setSignupValues] = useState({
     username: "",
@@ -109,8 +110,7 @@ export default function SignUp() {
 
   const submitUserInfo = () => {
     const { username, email, password } = signupValues;
-    console.log({username, email, password})
-    // dispatch(signupUser({ username, email, password }));
+    dispatch(signupUser({ username, email, password }));
   };
 
   // useEffect(() => {
@@ -119,16 +119,23 @@ export default function SignUp() {
   //   };
   // }, []);
 
-  // useEffect(() => {
-  //   if (isSuccess) {
-  //     dispatch(clearState());
-  //     setHelperText(successMessage);
-  //   }
-  //   if (isError) {
-  //     dispatch(clearState());
-  //     setHelperText(errorMessage);
-  //   }
-  // }, [isSuccess, isError]);
+  useEffect(() => {
+    if (isFetching) {
+      dispatch(clearState());
+      // setHelperText(fetchMessage);
+      console.log("fetching")
+    }
+    if (isSuccess) {
+      dispatch(clearState());
+      setHelperText(successMessage);
+      setHelperTextColor("black")
+    }
+    if (isError) {
+      dispatch(clearState());
+      setHelperText(errorMessage);
+      setHelperTextColor("red")
+    }
+  }, [isSuccess, isError]);
 
   const fieldsAreValid =
     Object.values(errors).every((error) => error === false) &&
@@ -171,6 +178,7 @@ export default function SignUp() {
               textAlign: "center",
               margin: "35px 0 5px 0",
               fontWeight: "bold",
+              color: helperTextColor
             }}
           >
             {helperText}

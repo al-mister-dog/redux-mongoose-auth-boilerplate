@@ -16,7 +16,7 @@ mongoose
   .then(() => console.log("db connected"))
   .catch((err) => console.log("db error", err));
 
-const authRoutes = require("./routes/auth");
+const routes = require("./routes");
 
 app.use(morgan("dev")); //shows requests in terminal
 app.use(express.json()); //https://medium.com/@mmajdanski/express-body-parser-and-why-may-not-need-it-335803cd048c

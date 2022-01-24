@@ -6,19 +6,16 @@ export const signupUser = createAsyncThunk(
   async ({ username, email, password }, thunkAPI) => {
     try {
       const response = await authService.signup(username, email, password);
-      let data = await response.json();
-      console.log("data", data);
+      const data = response.data;
 
       if (response.status === 200) {
-        // localStorage.setItem('token', data.token);
-        return { ...data, username: username, email: email };
+        return { data };
       } else {
-        console.log("response is something else");
         console.log(data);
         return thunkAPI.rejectWithValue(data);
       }
     } catch (error) {
-      console.log("Error", error.response.data);
+      console.log(error);
       return thunkAPI.rejectWithValue(error.response.data);
     }
   }
@@ -50,7 +47,7 @@ export const fetchUserByToken = createAsyncThunk(
   "users/fetchUserByToken",
   async ({ token }, thunkAPI) => {
     try {
-      const response = await authService.fetchUserByToken(token)
+      const response = await authService.fetchUserByToken(token);
       let data = await response.json();
       console.log("data", data, response.status);
 
@@ -60,17 +57,15 @@ export const fetchUserByToken = createAsyncThunk(
         return thunkAPI.rejectWithValue(data);
       }
     } catch (error) {
-      console.log("Error", error.response.data);
+      console.log("CATCH ERROR ");
       return thunkAPI.rejectWithValue(error.response.data);
     }
   }
 );
 
-export const logout = createAsyncThunk(
-  "users/logout", async () => {
-    authService.logout()
-  }
-)
+export const logout = createAsyncThunk("users/logout", async () => {
+  authService.logout();
+});
 
 export const userSlice = createSlice({
   name: "user",
@@ -79,6 +74,7 @@ export const userSlice = createSlice({
     isFetching: false,
     isSuccess: false,
     isError: false,
+    successMessage: "",
     errorMessage: "",
   },
   reducers: {
@@ -93,9 +89,10 @@ export const userSlice = createSlice({
   extraReducers: {
     [signupUser.fulfilled]: (state, { payload }) => {
       console.log("fulfilled signupUser");
-      console.log("payload", payload);
+      console.log({ payload: payload });
       state.isFetching = false;
       state.isSuccess = true;
+      state.successMessage = payload.data.message;
     },
     [signupUser.pending]: (state) => {
       console.log("pending signupUser");
@@ -103,15 +100,16 @@ export const userSlice = createSlice({
     },
     [signupUser.rejected]: (state, { payload }) => {
       console.log("rejected signupUser");
-      const message = payload.validationErrors.error.msg;
+      console.log({ payload: payload });
       state.isFetching = false;
+      state.isSuccess = false;
       state.isError = true;
-      state.errorMessage = message;
+      state.errorMessage = payload.error;
     },
     [loginUser.fulfilled]: (state, { payload }) => {
       console.log("fulfilled loginUser");
       console.log(payload);
-      state.user = payload
+      state.user = payload;
       state.isFetching = false;
       state.isSuccess = true;
       return state;
@@ -131,7 +129,7 @@ export const userSlice = createSlice({
       state.isFetching = true;
     },
     [fetchUserByToken.fulfilled]: (state, { payload }) => {
-      state.user = payload
+      state.user = payload;
       state.isFetching = false;
       state.isSuccess = true;
 

@@ -36,7 +36,6 @@ exports.signup = (req, res) => {
         error: "Email is taken",
       });
     }
-    console.log("past findone");
     const token = jwt.sign(
       { name, email, password },
       process.env.JWT_ACCOUNT_ACTIVATION,
@@ -70,7 +69,7 @@ exports.signup = (req, res) => {
       .send(emailData)
       .then((sent) => {
         console.log("SIGNUP EMAIL SENT", sent);
-        return res.json({
+        return res.send({
           message: `Email has been sent to ${email}. Follow the instruction to activate your account`,
           // link: `${process.env.CLIENT_URL}/auth/activate/${token}`,
         });
