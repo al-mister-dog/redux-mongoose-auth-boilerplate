@@ -1,65 +1,67 @@
-// import { useState, useEffect } from "react";
-// import { Link, Redirect } from "react-router-dom";
-// import Layout from "../core/Layout";
-// import axios from "axios";
-// import { ToastContainer, toast } from "react-toastify";
-// import "react-toastify/dist/ReactToastify.min.css";
+import { useDispatch, useSelector } from "react-redux";
+import { activateAccount, userSelector, clearState } from "../../features/user/userSlice";
+import { Box, Typography, Button } from "@material-ui/core";
+import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import Signup from "./Signup"
+import Login from "./Login"
 
 
-// const Activate = ({ match }) => {
-//   const [values, setValues] = useState({
-//     name: "",
-//     token: "",
-//     show: true,
-//   });
-  
-//   useEffect(() => {
-//     clickSubmit()
-    
-//   }, []);
+const signup = "signup"
+const login = "login"
 
-//   const { name, token, show } = values;
+const Activate = ({ match }) => {
+  const dispatch = useDispatch();
+  const { isFetching, isSuccess, successMessage, isError, errorMessage } =
+    useSelector(userSelector);
+    const navigate = useNavigate()
+  const [values, setValues] = useState({
+    name: "",
+    token: "",
+    show: true,
+  });
+  const [message, setMessage] = useState("");
+  const [component, setcomponent] = useState("");
+  const [btn, setBtn] = useState("")
 
-//   const clickSubmit = () => {
-//     setValues({ ...values, buttonText: "Submitting" });
-//     axios({
-//       method: "POST",
-//       url: `${process.env.REACT_APP_API}/accountactivation`,
-//       data: { token: match.params.token },
-//     })
-//       .then((response) => {
-//         console.log(response);
-//         setValues({
-//           ...values,
-//           show: false,
-//         });
-//         toast.success(response.data.message);
-//       })
-//       .catch((error) => {
-//         console.log("Activate ERROR: " + error.response.data);
-//         setValues({ ...values, buttonText: "submit" });
-//         toast.error(error.response.data.error);
-//       });
-//   };
+  let params = useParams();
+  useEffect(() => {
+    attemptActivation();
+  }, []);
+  useEffect(() => {
+    if (isError) {
+      setMessage(errorMessage)
+      setcomponent(signup)
+      setBtn(signup)
+      dispatch(clearState())
+    }
+    if (isSuccess) {
+      setMessage(successMessage)
+      setcomponent(login)
+      setBtn(login)
+      dispatch(clearState())
+    }
+  }, [isSuccess, isError]);
 
-//   const activationLink = () => (
-//     <div className="text-center">
-//       <h1 className="p-5">{name}, activate your account</h1>
-//       <button className="btn btn-outline-primary" onClick={clickSubmit}>
-//         Activate Account
-//       </button>
-//     </div>
-//   );
-//   return (
-//     <Layout>
-//       <div className="col-md-6 offset-md-3">
-//         <ToastContainer />
-//         {/* {JSON.stringify({name, email, password})}  */}
+  const { name, token, show } = values;
 
-//         {activationLink()}
-//       </div>
-//     </Layout>
-//   );
-// };
+  const attemptActivation = () => {
+    // setValues({ ...values, buttonText: "Submitting" });
+    const token = params.token;
+    dispatch(activateAccount({ token }));
+  };
 
-// export default Activate;
+  return (
+    <>
+      <Box>
+        <Typography>{message}</Typography>
+        {btn === signup && <Button onClick={() => navigate("/signup")}>Sign Up</Button>}
+        {btn === login && <Button onClick={() => navigate("/login")}>Log In</Button>}
+        {/* {component === signup && <Signup />}
+        {component === login && <Login />} */}
+      </Box>
+    </>
+  );
+};
+
+export default Activate;

@@ -1,32 +1,7 @@
 const User = require("../models/user");
 const jwt = require("jsonwebtoken");
-// sendgrid
 const sgMail = require("@sendgrid/mail");
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-
-// exports.signup = (req, res) => {
-//   console.log("REQUEST BODY IS: " + req.body);
-//   const { name, email, password } = req.body;
-//   User.findOne({ email: email }).exec((err, user) => {
-//     if (user) {
-//       return res.status(400).json({
-//         error: "Email is taken",
-//       });
-//     }
-//   });
-//   let newUser = new User({ name, email, password });
-//   newUser.save((err, success) => {
-//     if (err) {
-//       console.log("SIGNUP ERROR: ", err);
-//       return res.status(400).json({
-//         error: err,
-//       });
-//     }
-//     res.json({
-//       message: "sign up success. login",
-//     });
-//   });
-// };
 
 exports.signup = (req, res) => {
   const { name, email, password } = req.body;
@@ -43,8 +18,9 @@ exports.signup = (req, res) => {
     );
 
     /*
-    this will act as email send functionality until sendgrid account suspension lifted
-    email is sent to user with a link that contains activation token
+    this will act as email send functionality if sendgrid account suspended
+    message is sent to user with a link that contains activation token
+    DEV MODE ONLY
     */
     // return res.json({
     //   message: `Email has been sent to ${email}. Follow the instruction to activate your account`,
@@ -84,9 +60,9 @@ exports.signup = (req, res) => {
   });
 };
 
-exports.accountActivation = (req, res) => {
+exports.activateAccount = (req, res) => {
   const { token } = req.body;
-
+  console.log(token)
   if (token) {
     jwt.verify(
       token,
@@ -95,35 +71,34 @@ exports.accountActivation = (req, res) => {
         if (err) {
           console.log("JWT VERIFY IN ACCOUNT ACTIVATION ERROR", err);
           return res.status(401).json({
-            error: "Expired link. Signup again",
+            error: "Token is invalid or expired. Please signup again",
           });
         }
-
+        
         const { name, email, password } = jwt.decode(token);
-
         const user = new User({ name, email, password });
 
         user.save((err, user) => {
           if (err) {
             console.log("SAVE USER IN ACCOUNT ACTIVATION ERROR", err);
             return res.status(401).json({
-              error: "Error saving user in database. Try signup again",
+              error: "Error saving user in database. Try signing up again",
             });
           }
           return res.json({
-            message: "Signup success. Please signin.",
+            message: `Hi, ${name}! Please login...`,
           });
         });
       }
     );
   } else {
-    return res.json({
-      message: "Something went wrong. Try again.",
+    return res.status(500).json({
+      error: "Something went wrong. Try signing up again.",
     });
   }
 };
 
-exports.signin = (req, res) => {
+exports.login = (req, res) => {
   const { email, password } = req.body;
   //check if user exists
   User.findOne({ email }).exec((err, user) => {

@@ -11,7 +11,7 @@ const signup = (username, email, password) => {
 const login = (email, password) => {
   return axios({
     method: "POST",
-    url: `${process.env.REACT_APP_API}auth/login`,
+    url: `${process.env.REACT_APP_API}/auth/login`,
     data: { email, password },
   })
 };
@@ -33,6 +33,7 @@ const logout = () => {
 
 const authService = {
   signup,
+  activateAccount,
   login,
   fetchUserByToken,
   logout,

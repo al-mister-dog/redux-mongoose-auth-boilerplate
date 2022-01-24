@@ -1,8 +1,8 @@
-import SignUpObj from "./pages/auth/SignupObj";
+import Routes from "./Routes";
 
 function App() {
   return (
-    <SignUpObj />    
+    <Routes />    
   );
 }
 

@@ -14,7 +14,7 @@ export const signupUser = createAsyncThunk(
         console.log(data);
         return thunkAPI.rejectWithValue(data);
       }
-    } catch (error) {
+    } catch (error) {  
       console.log(error);
       return thunkAPI.rejectWithValue(error.response.data);
     }
@@ -26,8 +26,8 @@ export const loginUser = createAsyncThunk(
   async ({ email, password }, thunkAPI) => {
     try {
       const response = await authService.login(email, password);
-      let data = await response.json();
-      console.log("response", data);
+      console.log({ response: response });
+      let data = await response.data;
       if (response.status === 200) {
         localStorage.setItem("token", data.token);
         return data;
@@ -43,6 +43,18 @@ export const loginUser = createAsyncThunk(
   }
 );
 
+export const activateAccount = createAsyncThunk(
+  "users/activateAccount",
+  async ({ token }, thunkAPI) => {
+    try {
+      const response = await authService.activateAccount(token)
+      return response.data.message
+    } catch (error) {
+      console.log(error.response)
+      return thunkAPI.rejectWithValue(error.response.data.error);
+    }
+  }
+);
 export const fetchUserByToken = createAsyncThunk(
   "users/fetchUserByToken",
   async ({ token }, thunkAPI) => {
@@ -91,6 +103,7 @@ export const userSlice = createSlice({
       console.log("fulfilled signupUser");
       console.log({ payload: payload });
       state.isFetching = false;
+      state.isError = false;
       state.isSuccess = true;
       state.successMessage = payload.data.message;
     },
@@ -105,6 +118,19 @@ export const userSlice = createSlice({
       state.isSuccess = false;
       state.isError = true;
       state.errorMessage = payload.error;
+    },
+    [activateAccount.fulfilled]: (state, {payload}) => {
+      state.isFetching = false;
+      state.isError = false;
+      state.isSuccess = true;
+      state.successMessage = payload;
+    },
+    [activateAccount.rejected]: (state, {payload}) => {
+      console.log({ payload: payload });
+      state.isFetching = false;
+      state.isSuccess = false;
+      state.isError = true;
+      state.errorMessage = payload;
     },
     [loginUser.fulfilled]: (state, { payload }) => {
       console.log("fulfilled loginUser");
