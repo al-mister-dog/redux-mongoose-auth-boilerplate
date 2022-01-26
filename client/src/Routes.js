@@ -6,6 +6,7 @@ import Login from "./pages/auth/Login";
 import Activate from "./pages/auth/Activate";
 import Dashboard from "./pages/user/Dashboard";
 import Private from "./pages/Private"
+import Admin from "./pages/Admin"
 import { isAuth } from "./utils/cookies";
 const AppRoutes = () => {
   return (
@@ -18,6 +19,7 @@ const AppRoutes = () => {
         <Route path="/auth/activate/:token" element={<Activate />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/private" element={<RequireAuth><Private /></RequireAuth>} />
+        <Route path="/admin" element={<RequireAdminAuth><Admin /></RequireAdminAuth>} />
       </Routes>
     </Router>
   );
@@ -25,16 +27,20 @@ const AppRoutes = () => {
 
 function RequireAuth({children}) {
   let location = useLocation();
-
   if (!isAuth()) {
-    // Redirect them to the /login page, but save the current location they were
-    // trying to go to when they were redirected. This allows us to send them
-    // along to that page after they login, which is a nicer user experience
-    // than dropping them off on the home page.
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
-
   return children;
 }
+function RequireAdminAuth({children}) {
+  let location = useLocation();
+  if (isAuth() && isAuth().role === "admin") {
+    return children; 
+  } else {
+    return <Navigate to="/" state={{ from: location }} replace />;
+  }
+}
+
+
 
 export default AppRoutes;

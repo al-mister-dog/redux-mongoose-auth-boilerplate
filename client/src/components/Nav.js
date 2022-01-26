@@ -33,9 +33,15 @@ export default function Nav() {
             <Typography variant="h6" style={{ flexGrow: 1 }}>
               Website
             </Typography>
+
             {isAuth() && (
               <>
-              <span>{isAuth().name}</span>
+              <Link
+                  to={isAuth().role === "admin" ? "/admin" : "/dashboard"}
+                  style={{ textDecoration: "none", color: "inherit" }}
+                >
+                  <Button color="inherit">{isAuth().name}</Button>
+                </Link>
               <Button
                 color="inherit"
                 onClick={() => {

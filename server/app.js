@@ -22,7 +22,7 @@ app.use(morgan("dev")); //shows requests in terminal
 app.use(express.json()); //https://medium.com/@mmajdanski/express-body-parser-and-why-may-not-need-it-335803cd048c
 // app.use(cors()) //allows all origins
 if ((process.env.NODE_ENV = "development")) {
-  app.use(cors({ origin: `http://localhost:3003` }));
+  app.use(cors({ origin: `http://localhost:3000` }));
 }
 
 //when using middleware use "use" method

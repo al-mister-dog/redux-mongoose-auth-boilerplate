@@ -6,6 +6,7 @@ import {
 } from "../../features/user/userSlice";
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { isAuth } from "../../utils/cookies";
 import {
   Button,
   TextField,
@@ -55,10 +56,6 @@ export default function LogIn() {
     dispatch(loginUser(data));
   };
 
-  // const createToken = (token) => {
-  //   localStorage.setItem("token", JSON.stringify(token));
-  // };
-
   const navigate = useNavigate();
   useEffect(() => {
     return () => {
@@ -74,8 +71,11 @@ export default function LogIn() {
 
     if (isSuccess) {
       dispatch(clearState());
-      navigate('/dashboard')
-      setHelperText("successful login");
+      if (isAuth() && isAuth().role === "admin") {
+        navigate("/admin");
+      } else {
+        navigate("/dashboard");
+      }
     }
   }, [isError, isSuccess]);
   return (
@@ -135,7 +135,7 @@ export default function LogIn() {
           </Button>
           <Grid container>
             <Grid item xs>
-              {/* <Link to="/password" style={{ textDecoration: "none" }}> */}
+              <Link to="/password" style={{ textDecoration: "none" }}>
               <Typography
                 align="left"
                 variant="body2"
@@ -143,7 +143,7 @@ export default function LogIn() {
               >
                 Forgot password?
               </Typography>
-              {/* </Link> */}
+              </Link>
             </Grid>
             <Grid item>
               <Link to="/signup" style={{ textDecoration: "none" }}>

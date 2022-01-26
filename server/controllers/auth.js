@@ -1,5 +1,6 @@
 const User = require("../models/user");
 const jwt = require("jsonwebtoken");
+const expressJwt = require("express-jwt");
 const sgMail = require("@sendgrid/mail");
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
@@ -62,7 +63,7 @@ exports.signup = (req, res) => {
 
 exports.activateAccount = (req, res) => {
   const { token } = req.body;
-  console.log(token)
+  console.log(token);
   if (token) {
     jwt.verify(
       token,
@@ -74,7 +75,7 @@ exports.activateAccount = (req, res) => {
             error: "Token is invalid or expired. Please signup again",
           });
         }
-        
+
         const { name, email, password } = jwt.decode(token);
         const user = new User({ name, email, password });
 
@@ -100,25 +101,23 @@ exports.activateAccount = (req, res) => {
 
 exports.login = (req, res) => {
   const { email, password } = req.body;
-  //check if user exists
+
   User.findOne({ email }).exec((err, user) => {
     if (err || !user) {
-      console.log("user not found or error")
+      console.log("user not found or error");
       return res.status(400).json({ error: "Email not found" });
     }
-    
-    //authenticate
+
     if (!user.authenticate(password)) {
       return res.status(400).json({ error: "Email and Password do not match" });
     }
-    
-    //generate token and send to client
+
     const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
       expiresIn: "7d",
     });
 
     const { _id, name, email, role } = user;
-    console.log(user)
+
     return res.json({
       token,
       user: {
@@ -140,3 +139,4 @@ exports.login = (req, res) => {
  * if signin valid server sends user info and valid jwt token
  * this token will be sent to server to access protected routes
  */
+exports.requireLogin = expressJwt({ secret: process.env.JWT_SECRET, algorithms: ['HS256'] }); //adds user property to request object

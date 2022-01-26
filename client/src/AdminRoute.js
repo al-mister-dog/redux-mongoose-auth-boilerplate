@@ -1,13 +1,13 @@
 import { Navigate, useLocation, Route } from "react-router-dom";
 import { isAuth } from "./utils/cookies";
 
-const PrivateRoute = ({ children, ...rest }) => {
+const AdminRoute = ({ children, ...rest }) => {
   let location = useLocation();
   return (
     <Route
       {...rest}
       render={(props) =>
-        isAuth() ? (
+        isAuth() && isAuth().role === "admin" ? (
           children
         ) : (
           <Navigate to="/login" state={{ from: location }} replace />
@@ -17,4 +17,4 @@ const PrivateRoute = ({ children, ...rest }) => {
   );
 };
 
-export default PrivateRoute;
+export default AdminRoute;
