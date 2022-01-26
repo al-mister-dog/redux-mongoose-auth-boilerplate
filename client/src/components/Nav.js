@@ -34,6 +34,8 @@ export default function Nav() {
               Website
             </Typography>
             {isAuth() && (
+              <>
+              <span>{isAuth().name}</span>
               <Button
                 color="inherit"
                 onClick={() => {
@@ -45,6 +47,8 @@ export default function Nav() {
               >
                 Logout
               </Button>
+              </>
+              
             )}
             {!isAuth() && (
               <>
