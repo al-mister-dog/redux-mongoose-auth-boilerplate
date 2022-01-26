@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import authService from "../services/auth.service";
+import { authenticate } from "../../utils/cookies";
 
 export const signupUser = createAsyncThunk(
   "users/signupUser",
@@ -14,7 +15,7 @@ export const signupUser = createAsyncThunk(
         console.log(data);
         return thunkAPI.rejectWithValue(data);
       }
-    } catch (error) {  
+    } catch (error) {
       console.log(error);
       return thunkAPI.rejectWithValue(error.response.data);
     }
@@ -29,32 +30,22 @@ export const loginUser = createAsyncThunk(
       console.log({ response: response });
       let data = await response.data;
       if (response.status === 200) {
-        localStorage.setItem("token", data.token);
-        return data;
+        console.log(data.token);
+        authenticate(data);
+        return data.user;
       } else {
         console.log("response is something else");
         console.log(data);
         return thunkAPI.rejectWithValue(data);
       }
     } catch (error) {
+      console.log(error);
       console.log("Error", error.response.data);
-      thunkAPI.rejectWithValue(error.response.data);
-    }
-  }
-);
-
-export const activateAccount = createAsyncThunk(
-  "users/activateAccount",
-  async ({ token }, thunkAPI) => {
-    try {
-      const response = await authService.activateAccount(token)
-      return response.data.message
-    } catch (error) {
-      console.log(error.response)
       return thunkAPI.rejectWithValue(error.response.data.error);
     }
   }
 );
+
 export const fetchUserByToken = createAsyncThunk(
   "users/fetchUserByToken",
   async ({ token }, thunkAPI) => {
@@ -97,6 +88,11 @@ export const userSlice = createSlice({
 
       return state;
     },
+    clearUser: (state) => {
+      state.user = "";
+
+      return state;
+    },
   },
   extraReducers: {
     [signupUser.fulfilled]: (state, { payload }) => {
@@ -119,32 +115,21 @@ export const userSlice = createSlice({
       state.isError = true;
       state.errorMessage = payload.error;
     },
-    [activateAccount.fulfilled]: (state, {payload}) => {
-      state.isFetching = false;
-      state.isError = false;
-      state.isSuccess = true;
-      state.successMessage = payload;
-    },
-    [activateAccount.rejected]: (state, {payload}) => {
-      console.log({ payload: payload });
-      state.isFetching = false;
-      state.isSuccess = false;
-      state.isError = true;
-      state.errorMessage = payload;
-    },
     [loginUser.fulfilled]: (state, { payload }) => {
       console.log("fulfilled loginUser");
       console.log(payload);
       state.user = payload;
       state.isFetching = false;
       state.isSuccess = true;
+      state.isError = false;
       return state;
     },
     [loginUser.rejected]: (state, { payload }) => {
       console.log("rejected loginUser. payload", payload);
       state.isFetching = false;
+      state.isSuccess = false;
       state.isError = true;
-      state.errorMessage = payload.message;
+      state.errorMessage = payload;
     },
     [loginUser.pending]: (state) => {
       console.log("pending loginUser");
@@ -169,7 +154,7 @@ export const userSlice = createSlice({
   },
 });
 
-export const { clearState } = userSlice.actions;
+export const { clearState, clearUser } = userSlice.actions;
 
 export const userSelector = (state) => state.user;
 

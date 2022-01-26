@@ -4,7 +4,7 @@ import {
   userSelector,
   clearState,
 } from "../../features/user/userSlice";
-// import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import {
   Button,
@@ -16,7 +16,7 @@ import {
   Typography,
 } from "@material-ui/core";
 
-export default function LogIn({}) {
+export default function LogIn() {
   const dispatch = useDispatch();
   const { isFetching, isSuccess, isError, errorMessage } =
     useSelector(userSelector);
@@ -59,7 +59,7 @@ export default function LogIn({}) {
   //   localStorage.setItem("token", JSON.stringify(token));
   // };
 
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
   useEffect(() => {
     return () => {
       dispatch(clearState());
@@ -74,7 +74,7 @@ export default function LogIn({}) {
 
     if (isSuccess) {
       dispatch(clearState());
-      // navigate('/dashboard')
+      navigate('/dashboard')
       setHelperText("successful login");
     }
   }, [isError, isSuccess]);
@@ -146,11 +146,11 @@ export default function LogIn({}) {
               {/* </Link> */}
             </Grid>
             <Grid item>
-              {/* <Link to="/signup" style={{ textDecoration: "none" }}> */}
+              <Link to="/signup" style={{ textDecoration: "none" }}>
                 <Typography variant="body2" style={{ marginTop: "5px" }}>
                   {"Don't have an account? Sign Up"}
                 </Typography>
-              {/* </Link> */}
+              </Link>
             </Grid>
           </Grid>
         </Box>

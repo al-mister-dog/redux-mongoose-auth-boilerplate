@@ -1,12 +1,15 @@
+/**TODOS
+ * disable signup button on succesful signup
+ */
 import { useSelector, useDispatch } from "react-redux";
 import {
   signupUser,
   userSelector,
   clearState,
 } from "../../features/user/userSlice";
-// import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { Button, TextField, Grid, Box, Typography } from "@material-ui/core";
+import { Button, TextField, Grid, Box, Typography, LinearProgress } from "@material-ui/core";
 
 const formFields = [
   { name: "username", type: "text", label: "Username" },
@@ -19,6 +22,7 @@ export default function SignUp() {
   const { isFetching, isSuccess, successMessage, isError, errorMessage } =
     useSelector(userSelector);
   const dispatch = useDispatch();
+  const [isSignedUp, setIsSignedUp] = useState(false)
   const [helperText, setHelperText] = useState("");
   const [helperTextColor, setHelperTextColor] = useState("");
   const [signupValues, setSignupValues] = useState({
@@ -128,6 +132,7 @@ export default function SignUp() {
       dispatch(clearState());
       setHelperText(successMessage);
       setHelperTextColor("black");
+      setIsSignedUp(true)
     }
     if (isError) {
       dispatch(clearState());
@@ -168,6 +173,7 @@ export default function SignUp() {
               );
             })}
           </Grid>
+          {isFetching && <LinearProgress />}
           <Typography
             variant="body1"
             style={{
@@ -183,18 +189,18 @@ export default function SignUp() {
             type="submit"
             fullWidth
             variant="contained"
-            disabled={!fieldsAreValid}
+            disabled={!fieldsAreValid || isSignedUp}
             onClick={onClickSignup}
           >
             Sign Up
           </Button>
           <Grid container justifyContent="flex-end">
             <Grid item style={{ marginTop: "20px" }}>
-              {/* <Link to="/login"> */}
+            <Link to="/login" style={{ textDecoration: "none" }}>
               <Typography variant="body2">
                 Already have an account? Log in
               </Typography>
-              {/* </Link> */}
+              </Link>
             </Grid>
           </Grid>
         </Box>

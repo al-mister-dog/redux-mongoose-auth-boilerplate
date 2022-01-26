@@ -103,18 +103,22 @@ exports.login = (req, res) => {
   //check if user exists
   User.findOne({ email }).exec((err, user) => {
     if (err || !user) {
+      console.log("user not found or error")
       return res.status(400).json({ error: "Email not found" });
     }
+    
     //authenticate
     if (!user.authenticate(password)) {
       return res.status(400).json({ error: "Email and Password do not match" });
     }
+    
     //generate token and send to client
     const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
       expiresIn: "7d",
     });
 
     const { _id, name, email, role } = user;
+    console.log(user)
     return res.json({
       token,
       user: {
