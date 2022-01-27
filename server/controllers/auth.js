@@ -1,6 +1,5 @@
 const User = require("../models/user");
 const jwt = require("jsonwebtoken");
-const expressJwt = require("express-jwt");
 const sgMail = require("@sendgrid/mail");
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
@@ -139,4 +138,3 @@ exports.login = (req, res) => {
  * if signin valid server sends user info and valid jwt token
  * this token will be sent to server to access protected routes
  */
-exports.requireLogin = expressJwt({ secret: process.env.JWT_SECRET, algorithms: ['HS256'] }); //adds user property to request object
