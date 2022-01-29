@@ -24,40 +24,50 @@ export const getCookie = (key, value) => {
 
 export const setInLocalStorage = (key, value) => {
   if (window !== undefined) {
-    localStorage.setItem(key, JSON.stringify(value))
+    localStorage.setItem(key, JSON.stringify(value));
   }
 };
 
 export const removeLocalStorage = (key) => {
   if (window !== undefined) {
-    localStorage.removeItem(key)
+    localStorage.removeItem(key);
   }
 };
 
 //authenticate user by passing data to cookie and local storage during signin
 export const authenticate = (data) => {
-  console.log("AUTHENTICATE HELPER ON LOGIN RESPONSE", data)
-  setCookie('token', data.token)
-  setInLocalStorage('user', data.user)
-  console.log("all good??")
-}
+  console.log("AUTHENTICATE HELPER ON LOGIN RESPONSE", data);
+  setCookie("token", data.token);
+  setInLocalStorage("user", data.user);
+  console.log("all good??");
+};
 
 //access user from localstorage
 export const isAuth = () => {
   if (window !== undefined) {
-    const cookieChecked = getCookie('token')
+    console.log("ok");
+    const cookieChecked = getCookie("token");
     if (cookieChecked) {
-      if (localStorage.getItem('user')) {
-        return JSON.parse(localStorage.getItem('user'))
+      if (localStorage.getItem("user")) {
+        return JSON.parse(localStorage.getItem("user"));
       } else {
-        return false
+        return false;
       }
     }
   }
-}
+};
 
 export const logout = (callback) => {
-  removeCookie('token')
-  removeLocalStorage('user')
-  callback()
-}
+  removeCookie("token");
+  removeLocalStorage("user");
+  callback();
+};
+
+export const updateUserCookie = (data) => {
+  console.log({updateUserLocalStorage: data});
+  if (window !== undefined) {
+    let auth = JSON.parse(localStorage.getItem("user"));
+    auth = data;
+    localStorage.setItem("user", JSON.stringify(auth))
+  }
+};

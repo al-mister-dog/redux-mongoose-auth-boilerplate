@@ -1,6 +1,3 @@
-/**TODOS
- * disable signup button on succesful signup
- */
 import { useSelector, useDispatch } from "react-redux";
 import {
   signupUser,

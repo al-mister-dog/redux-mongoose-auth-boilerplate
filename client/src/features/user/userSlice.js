@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import authService from "../services/auth.service";
-import { authenticate } from "../../utils/cookies";
+import userService from "../services/user.service";
+import { authenticate, updateUserCookie } from "../../utils/cookies";
 
 export const signupUser = createAsyncThunk(
   "users/signupUser",
@@ -25,6 +26,7 @@ export const signupUser = createAsyncThunk(
 export const loginUser = createAsyncThunk(
   "users/login",
   async ({ email, password }, thunkAPI) => {
+    console.log(email, password)
     try {
       const response = await authService.login(email, password);
       console.log({ response: response });
@@ -45,23 +47,26 @@ export const loginUser = createAsyncThunk(
     }
   }
 );
-
-export const fetchUserByToken = createAsyncThunk(
-  "users/fetchUserByToken",
-  async ({ token }, thunkAPI) => {
+ 
+export const updateUser = createAsyncThunk(
+  "users/update",
+  async ({ token, username, password }, state, thunkAPI) => {
     try {
-      const response = await authService.fetchUserByToken(token);
-      let data = await response.json();
-      console.log("data", data, response.status);
-
+      const response = await userService.update(token, username, password);
+      console.log({ response: response });
+      let data = await response.data;
       if (response.status === 200) {
-        return { ...data };
+        updateUserCookie(data)
+        return data;
       } else {
+        console.log("response is something else");
+        console.log(data);
         return thunkAPI.rejectWithValue(data);
       }
     } catch (error) {
-      console.log("CATCH ERROR ");
-      return thunkAPI.rejectWithValue(error.response.data);
+      console.log(error);
+      console.log("Error", error.response.data);
+      return thunkAPI.rejectWithValue(error.response.data.error);
     }
   }
 );
@@ -90,7 +95,6 @@ export const userSlice = createSlice({
     },
     clearUser: (state) => {
       state.user = "";
-
       return state;
     },
   },
@@ -135,21 +139,26 @@ export const userSlice = createSlice({
       console.log("pending loginUser");
       state.isFetching = true;
     },
-    [fetchUserByToken.pending]: (state) => {
-      console.log("pending fetchUserByToken");
-      state.isFetching = true;
-    },
-    [fetchUserByToken.fulfilled]: (state, { payload }) => {
+    [updateUser.fulfilled]: (state, { payload }) => {
+      console.log("fulfilled updateUser");
+      console.log({ payload: payload });
       state.user = payload;
       state.isFetching = false;
+      state.isError = false;
       state.isSuccess = true;
-
-      state.email = payload.email;
-      state.username = payload.name;
+      state.successMessage = "user updated";
     },
-    [fetchUserByToken.rejected]: (state) => {
+    [updateUser.pending]: (state) => {
+      console.log("pending updateUser");
+      state.isFetching = true;
+    },
+    [updateUser.rejected]: (state, { payload }) => {
+      console.log("rejected updateUser");
+      console.log({ payload: payload });
       state.isFetching = false;
+      state.isSuccess = false;
       state.isError = true;
+      state.errorMessage = payload.error;
     },
   },
 });
