@@ -129,6 +129,7 @@ export default function LogIn() {
           </Typography>
           <Button
             fullWidth
+            id="login-btn"
             variant="contained"
             disabled={isDisabled}
             onClick={onClickLogin}
