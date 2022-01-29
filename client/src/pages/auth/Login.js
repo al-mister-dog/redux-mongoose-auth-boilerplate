@@ -86,11 +86,13 @@ export default function LogIn() {
         </Typography>
         <Box sx={{ mt: 1 }}>
           <TextField
+            data-testid="email"
             margin="normal"
             required
             fullWidth
             id="email"
             label="Email Address"
+            type="email"
             name="email"
             autoComplete="email"
             autoFocus
@@ -112,7 +114,7 @@ export default function LogIn() {
             onChange={handleChangePassword}
           />
           <FormControlLabel
-            control={<Checkbox value="remember" color="primary" />}
+            control={<Checkbox data-testid="checkbox" value="remember" color="primary" />}
             label="Remember me"
           />
           <Typography
