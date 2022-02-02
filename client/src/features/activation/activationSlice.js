@@ -10,11 +10,9 @@ export const activateAccount = createAsyncThunk(
       if (response.status === 200) {
         return response.data.message;
       } else {
-        console.log(response.data.message);
         return thunkAPI.rejectWithValue(response.data.message);
       }
     } catch (error) {
-      console.log(error.response);
       return thunkAPI.rejectWithValue(error.response.data.error);
     }
   }
@@ -46,14 +44,12 @@ export const activationSlice = createSlice({
       state.successMessage = payload;
     },
     [activateAccount.rejected]: (state, { payload }) => {
-      console.log({ payload: payload });
       state.isFetching = false;
       state.isSuccess = false;
       state.isError = true;
       state.errorMessage = payload;
     },
     [activateAccount.pending]: (state) => {
-      console.log("pending loginUser");
       state.isFetching = true;
     },
   },

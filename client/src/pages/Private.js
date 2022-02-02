@@ -22,7 +22,12 @@ const formFields = [
   { name: "username", type: "text", label: "Username", disabled: false },
   { name: "email", type: "text", label: "Email", disabled: true },
   { name: "password", type: "password", label: "Password", disabled: false },
-  { name: "passwordRepeat", type: "password", label: "Repeat Password", disabled: false },
+  {
+    name: "passwordRepeat",
+    type: "password",
+    label: "Repeat Password",
+    disabled: false,
+  },
 ];
 
 export default function Private() {
@@ -130,7 +135,7 @@ export default function Private() {
     const { username, password } = updateValues;
     dispatch(updateUser({ token, username, password }));
   };
-  
+
   const loadProfile = () => {
     axios({
       method: "GET",
@@ -138,32 +143,29 @@ export default function Private() {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((response) => {
-        console.log("PROFILE", response);
         const { role, name, email } = response.data;
         setUpdateValues({ ...updateValues, role, username: name, email });
       })
       .catch((err) => {
-        console.log("PROFILE", err);
         if (err.response.status === 401) {
           logout(() => {
             navigate("/");
           });
         }
       });
-  }; 
+  };
 
   useEffect(() => {
     if (isFetching) {
       dispatch(clearState());
       // setHelperText(fetchMessage);
-      console.log("fetching");
     }
     if (isSuccess) {
       dispatch(clearState());
       setHelperText(successMessage);
       setHelperTextColor("black");
       setIsUpdated(true);
-      navigate('/dashboard')
+      navigate("/dashboard");
     }
     if (isError) {
       dispatch(clearState());
@@ -175,10 +177,10 @@ export default function Private() {
   useEffect(() => {
     loadProfile();
   }, []);
-  
 
-  const fieldsAreValid =
-    Object.values(errors).every((error) => error === false)
+  const fieldsAreValid = Object.values(errors).every(
+    (error) => error === false
+  );
 
   return (
     <>

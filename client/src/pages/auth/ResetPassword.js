@@ -98,7 +98,7 @@ export default function ResetPassword() {
       });
       navigate("/login");
     } catch (error) {
-      console.log(error);
+      setHelperText("Something went wrong. Please try again")
     }
   };
 
@@ -106,7 +106,7 @@ export default function ResetPassword() {
   //   if (isFetching) {
   //     dispatch(clearState());
   //     // setHelperText(fetchMessage);
-  //     console.log("fetching");
+
   //   }
   //   if (isSuccess) {
   //     dispatch(clearState());
@@ -126,7 +126,6 @@ export default function ResetPassword() {
   }, []);
 
   async function authorizePasswordReset() {
-    console.log("getting");
     let resetPasswordLink = params.token;
     const response = await axios({
       method: "GET",

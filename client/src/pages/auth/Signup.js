@@ -129,8 +129,6 @@ export default function SignUp() {
   useEffect(() => {
     if (isFetching) {
       dispatch(clearState());
-      // setHelperText(fetchMessage);
-      console.log("fetching");
     }
     if (isSuccess) {
       dispatch(clearState());

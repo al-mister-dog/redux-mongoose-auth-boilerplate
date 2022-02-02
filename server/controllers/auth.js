@@ -35,15 +35,12 @@ exports.signup = (req, res) => {
     sgMail
       .send(emailData)
       .then((sent) => {
-        console.log("SIGNUP EMAIL SENT", sent);
         return res.send({
           message: `Email has been sent to ${email}. Follow the instruction to activate your account`,
           // link: `${process.env.CLIENT_URL}/auth/activate/${token}`,
         });
       })
       .catch((err) => {
-        // console.log('SIGNUP EMAIL SENT ERROR', err)
-        console.log(err);
         return res.json({
           message: err.message,
         });
@@ -53,14 +50,13 @@ exports.signup = (req, res) => {
 
 exports.activateAccount = (req, res) => {
   const { token } = req.body;
-  console.log(token);
+
   if (token) {
     jwt.verify(
       token,
       process.env.JWT_ACCOUNT_ACTIVATION,
       function (err, decoded) {
         if (err) {
-          console.log("JWT VERIFY IN ACCOUNT ACTIVATION ERROR", err);
           return res.status(401).json({
             error: "Token is invalid or expired. Please signup again",
           });
@@ -71,7 +67,6 @@ exports.activateAccount = (req, res) => {
 
         user.save((err, user) => {
           if (err) {
-            console.log("SAVE USER IN ACCOUNT ACTIVATION ERROR", err);
             return res.status(401).json({
               error: "Error saving user in database. Try signing up again",
             });
@@ -94,7 +89,6 @@ exports.login = (req, res) => {
 
   User.findOne({ email }).exec((err, user) => {
     if (err || !user) {
-      console.log("user not found or error");
       return res.status(400).json({ error: "Email not found" });
     }
 
@@ -131,7 +125,6 @@ exports.login = (req, res) => {
  */
 
 exports.forgotPassword = (req, res) => {
-  console.log("hello");
   const { email } = req.body;
   User.findOne({ email }, (err, user) => {
     if (err || !user) {
@@ -158,7 +151,6 @@ exports.forgotPassword = (req, res) => {
     };
     return user.updateOne({ resetPasswordLink: token }, (err, success) => {
       if (err) {
-        console.log("password error", err);
         return res.status(400).json({
           error: "Database connection error on user forgot password request",
         });
@@ -166,15 +158,12 @@ exports.forgotPassword = (req, res) => {
         sgMail
           .send(emailData)
           .then((sent) => {
-            console.log("SIGNUP EMAIL SENT", sent);
             return res.send({
               message: `Email has been sent to ${email}. Follow the instruction to reset your password`,
               // link: `${process.env.CLIENT_URL}/auth/activate/${token}`,
             });
           })
           .catch((err) => {
-            // console.log('SIGNUP EMAIL SENT ERROR', err)
-            console.log(err);
             return res.json({
               message: err.message,
             });
@@ -185,7 +174,6 @@ exports.forgotPassword = (req, res) => {
 };
 
 exports.authorizeResetPassword = (req, res) => {
-  console.log(req.headers.resetpasswordlink);
   const resetPasswordLink = req.headers.resetpasswordlink;
   if (resetPasswordLink) {
     jwt.verify(
@@ -216,7 +204,7 @@ exports.authorizeResetPassword = (req, res) => {
 
 exports.resetPassword = (req, res) => {
   const { id, newPassword } = req.body;
-  console.log(id, newPassword);
+
   User.findOne({ _id: id }, (err, user) => {
     if (err) {
       return res.status(400).json({
@@ -234,7 +222,7 @@ exports.resetPassword = (req, res) => {
           error: "Error resetting user password",
         });
       }
-      
+
       res.json({
         message: "Password reset! Login with new password",
       });

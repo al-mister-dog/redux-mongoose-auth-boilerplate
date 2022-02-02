@@ -9,7 +9,6 @@ exports.requireLogin = expressJwt({
 exports.adminAuth = (req, res, next) => {
   User.findById(req.user._id).exec((err, user) => {
     if (err || !user) {
-      console.log("user not found or error");
       return res.status(400).json({ error: "User not found" });
     }
     if (user.role !== "admin") {
