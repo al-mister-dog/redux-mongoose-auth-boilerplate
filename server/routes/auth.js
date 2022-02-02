@@ -7,8 +7,8 @@ const {
   userLoginValidator,
   forgotPasswordValidator,
   resetPasswordValidator
-} = require("../validators/auth");
-const { runValidation } = require("../validators");
+} = require("../middleware/validators/auth");
+const { runValidation } = require("../middleware/validators");
 
 router.post("/signup", userSignupValidator, runValidation, signup);
 router.post("/activate-account", activateAccount);
