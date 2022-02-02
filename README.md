@@ -1,3 +1,3 @@
 # Authorization and Authentication Boilerplate for Mongoose, React-Redux & Material UI
-Includes fully validated signup and login on front-end and back-end, protected routes, auth middlewares and roles. Tested using cypress.
+Fully validated signup and login on front and back end. Account activation. JWT Web Token and cookies. Reset password. Protected routes. Auth middlewares front and back end. Unstyled Material UI for customisation. Mongoose models. MongoDB. Cypress testing.
 
