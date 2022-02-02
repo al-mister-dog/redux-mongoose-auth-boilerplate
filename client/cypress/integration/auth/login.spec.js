@@ -1,5 +1,8 @@
 /// <reference types="cypress" />
-
+/*
+TODOS
+check cookies etc....
+*/
 describe("user login", () => {
   describe("login error", () => {
     it("should display email error message if email not found", () => {

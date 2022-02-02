@@ -12,7 +12,7 @@ exports.adminAuth = (req, res, next) => {
       console.log("user not found or error");
       return res.status(400).json({ error: "User not found" });
     }
-    if (user.role !== admin) {
+    if (user.role !== "admin") {
       return res.status(400).json({ error: "Admin access resource denied" });
     }
     req.profile = user;

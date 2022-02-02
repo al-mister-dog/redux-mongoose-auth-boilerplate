@@ -1,5 +1,6 @@
 const User = require("../models/user");
 const jwt = require("jsonwebtoken");
+const _ = require("lodash");
 const sgMail = require("@sendgrid/mail");
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
@@ -138,3 +139,107 @@ exports.login = (req, res) => {
  * if signin valid server sends user info and valid jwt token
  * this token will be sent to server to access protected routes
  */
+
+exports.forgotPassword = (req, res) => {
+  console.log("hello");
+  const { email } = req.body;
+  User.findOne({ email }, (err, user) => {
+    if (err) {
+      return res.status(400).json({
+        error: "Can't find user with this email",
+      });
+    }
+    const token = jwt.sign({ _id: user._id }, process.env.JWT_RESET_PASSWORD, {
+      expiresIn: "10m",
+    });
+
+    /*
+  this will act as email send functionality if sendgrid account suspended
+  message is sent to user with a link that contains activation token
+  DEV MODE ONLY
+  */
+    // return res.json({
+    //   message: `Email has been sent to ${email}. Follow the instruction to activate your account`,
+    //   link: `${process.env.CLIENT_URL}/auth/activate/${token}`,
+    // });
+
+    const emailData = {
+      // from: process.env.EMAIL_FROM,
+      from: "alexhunter@live.co.uk",
+      to: email,
+      subject: `Password Reset Link`,
+      html: `
+            <h1>Please use the following link to reset your password</h1>
+            <p>${process.env.CLIENT_URL}/auth/password/reset/${token}</p>
+            <hr />
+            <p>This email may contain sensetive information</p>
+            <p>${process.env.CLIENT_URL}</p>
+        `,
+    };
+    return user.updateOne({ resetPasswordLink: token }, (err, success) => {
+      if (err) {
+        console.log("password error", err);
+        return res.status(400).json({
+          error: "Database connection error on user forgot password request",
+        });
+      } else {
+        sgMail
+          .send(emailData)
+          .then((sent) => {
+            console.log("SIGNUP EMAIL SENT", sent);
+            return res.send({
+              message: `Email has been sent to ${email}. Follow the instruction to reset your password`,
+              // link: `${process.env.CLIENT_URL}/auth/activate/${token}`,
+            });
+          })
+          .catch((err) => {
+            // console.log('SIGNUP EMAIL SENT ERROR', err)
+            console.log(err);
+            return res.json({
+              message: err.message,
+            });
+          });
+      }
+    });
+  });
+};
+
+exports.resetPassword = (req, res) => {
+  const { resetPasswordLink, newPassword } = req.body;
+  if (resetPasswordLink) {
+    jwt.verify(
+      resetPasswordLink,
+      process.env.JWT_RESET_PASSWORD,
+      function (err, decodedData) {
+        if (err) {
+          return res.status(400).json({
+            error: "Expired link! Please try again",
+          });
+        }
+        User.findOne({ resetPasswordLink }, (err, user) => {
+          if (err || !user) {
+            return res.status(400).json({
+              error: "Something went wrong! Please try again",
+            });
+          }
+          const updatedFields = {
+            password: newPassword,
+            resetPasswordLink: "",
+          };
+
+          user = _.extend(user, updatedFields);
+          user.save((err, result) => {
+            if (err) {
+              return res.status(400).json({
+                error: "Error resetting user password",
+              });
+            }
+            res.json({
+              message: "Password reset! Login with new password"
+            })
+          });
+        });
+      }
+    );
+  }
+};

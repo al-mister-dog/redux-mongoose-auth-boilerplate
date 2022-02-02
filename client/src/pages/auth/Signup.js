@@ -6,11 +6,18 @@ import {
 } from "../../features/user/userSlice";
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { Button, TextField, Grid, Box, Typography, LinearProgress } from "@material-ui/core";
+import {
+  Button,
+  TextField,
+  Grid,
+  Box,
+  Typography,
+  LinearProgress,
+} from "@material-ui/core";
 
 const formFields = [
   { name: "username", type: "text", label: "Username" },
-  { name: "email", type: "text", label: "Email" },
+  { name: "email", type: "email", label: "Email" },
   { name: "password", type: "password", label: "Password" },
   { name: "passwordRepeat", type: "password", label: "Repeat Password" },
 ];
@@ -19,7 +26,7 @@ export default function SignUp() {
   const { isFetching, isSuccess, successMessage, isError, errorMessage } =
     useSelector(userSelector);
   const dispatch = useDispatch();
-  const [isSignedUp, setIsSignedUp] = useState(false)
+  const [isSignedUp, setIsSignedUp] = useState(false);
   const [helperText, setHelperText] = useState("");
   const [helperTextColor, setHelperTextColor] = useState("");
   const [signupValues, setSignupValues] = useState({
@@ -129,7 +136,7 @@ export default function SignUp() {
       dispatch(clearState());
       setHelperText(successMessage);
       setHelperTextColor("black");
-      setIsSignedUp(true)
+      setIsSignedUp(true);
     }
     if (isError) {
       dispatch(clearState());
@@ -183,6 +190,7 @@ export default function SignUp() {
             {helperText}
           </Typography>
           <Button
+            id="signup-btn"
             type="submit"
             fullWidth
             variant="contained"
@@ -193,10 +201,10 @@ export default function SignUp() {
           </Button>
           <Grid container justifyContent="flex-end">
             <Grid item style={{ marginTop: "20px" }}>
-            <Link to="/login" style={{ textDecoration: "none" }}>
-              <Typography variant="body2">
-                Already have an account? Log in
-              </Typography>
+              <Link to="/login" style={{ textDecoration: "none" }}>
+                <Typography variant="body2">
+                  Already have an account? Log in
+                </Typography>
               </Link>
             </Grid>
           </Grid>

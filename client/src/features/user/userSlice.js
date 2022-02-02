@@ -50,7 +50,7 @@ export const loginUser = createAsyncThunk(
  
 export const updateUser = createAsyncThunk(
   "users/update",
-  async ({ token, username, password }, state, thunkAPI) => {
+  async ({ token, username, password, role }, state, thunkAPI) => {
     try {
       const response = await userService.update(token, username, password);
       console.log({ response: response });

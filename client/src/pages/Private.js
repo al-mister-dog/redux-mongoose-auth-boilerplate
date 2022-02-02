@@ -29,10 +29,11 @@ export default function Private() {
   const { isFetching, isSuccess, successMessage, isError, errorMessage } =
     useSelector(userSelector);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [isUpdated, setIsUpdated] = useState(false);
   const [helperText, setHelperText] = useState("");
   const [helperTextColor, setHelperTextColor] = useState("");
-  const [updateValues, setupdateValues] = useState({
+  const [updateValues, setUpdateValues] = useState({
     role: "",
     username: "",
     email: "",
@@ -110,7 +111,7 @@ export default function Private() {
   };
 
   const handleChange = (name) => (event) => {
-    setupdateValues({ ...updateValues, [name]: event.target.value });
+    setUpdateValues({ ...updateValues, [name]: event.target.value });
     setErrors({ ...updateValues, [name]: false });
     setErrorMessages({ ...updateValues, [name]: "" });
     checkErrors[name](name, event);
@@ -129,12 +130,27 @@ export default function Private() {
     const { username, password } = updateValues;
     dispatch(updateUser({ token, username, password }));
   };
-
-  // useEffect(() => {
-  //   return () => {
-  //     dispatch(clearState());
-  //   };
-  // }, []);
+  
+  const loadProfile = () => {
+    axios({
+      method: "GET",
+      url: `${process.env.REACT_APP_API}/user/${isAuth()._id}`,
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((response) => {
+        console.log("PROFILE", response);
+        const { role, name, email } = response.data;
+        setUpdateValues({ ...updateValues, role, username: name, email });
+      })
+      .catch((err) => {
+        console.log("PROFILE", err);
+        if (err.response.status === 401) {
+          logout(() => {
+            navigate("/");
+          });
+        }
+      });
+  }; 
 
   useEffect(() => {
     if (isFetching) {
@@ -147,6 +163,7 @@ export default function Private() {
       setHelperText(successMessage);
       setHelperTextColor("black");
       setIsUpdated(true);
+      navigate('/dashboard')
     }
     if (isError) {
       dispatch(clearState());
@@ -155,30 +172,10 @@ export default function Private() {
     }
   }, [isSuccess, isError]);
 
-  const navigate = useNavigate();
-  const loadProfile = () => {
-    axios({
-      method: "GET",
-      url: `${process.env.REACT_APP_API}/user/${isAuth()._id}`,
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((response) => {
-        console.log("PROFILE", response);
-        const { role, name, email } = response.data;
-        setupdateValues({ ...updateValues, role, username: name, email });
-      })
-      .catch((err) => {
-        console.log("PROFILE", err);
-        if (err.response.status === 401) {
-          logout(() => {
-            navigate("/");
-          });
-        }
-      });
-  }; 
   useEffect(() => {
     loadProfile();
   }, []);
+  
 
   const fieldsAreValid =
     Object.values(errors).every((error) => error === false)
