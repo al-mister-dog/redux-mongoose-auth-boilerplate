@@ -138,7 +138,7 @@ export default function LogIn() {
           </Button>
           <Grid container>
             <Grid item xs>
-              <Link to="/password" style={{ textDecoration: "none" }}>
+              <Link to="/auth/password/forgot" style={{ textDecoration: "none" }}>
               <Typography
                 align="left"
                 variant="body2"

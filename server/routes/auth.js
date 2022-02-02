@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const { signup, activateAccount, login, forgotPassword, resetPassword } = require("../controllers/auth");
+const { signup, activateAccount, login, forgotPassword, authorizeResetPassword, resetPassword } = require("../controllers/auth");
 const {
   userSignupValidator,
   userLoginValidator,
@@ -15,6 +15,7 @@ router.post("/activate-account", activateAccount);
 router.post("/login", userLoginValidator, runValidation, login);
 
 router.put("/forgot-password", forgotPasswordValidator, runValidation, forgotPassword);
+router.get("/authorize-reset-password", authorizeResetPassword)
 router.put("/reset-password", resetPasswordValidator, runValidation, resetPassword);
 
 

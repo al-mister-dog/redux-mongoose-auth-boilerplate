@@ -18,16 +18,6 @@ exports.signup = (req, res) => {
       { expiresIn: "10m" }
     );
 
-    /*
-    this will act as email send functionality if sendgrid account suspended
-    message is sent to user with a link that contains activation token
-    DEV MODE ONLY
-    */
-    // return res.json({
-    //   message: `Email has been sent to ${email}. Follow the instruction to activate your account`,
-    //   link: `${process.env.CLIENT_URL}/auth/activate/${token}`,
-    // });
-
     const emailData = {
       // from: process.env.EMAIL_FROM,
       from: "alexhunter@live.co.uk",
@@ -144,7 +134,7 @@ exports.forgotPassword = (req, res) => {
   console.log("hello");
   const { email } = req.body;
   User.findOne({ email }, (err, user) => {
-    if (err) {
+    if (err || !user) {
       return res.status(400).json({
         error: "Can't find user with this email",
       });
@@ -152,16 +142,6 @@ exports.forgotPassword = (req, res) => {
     const token = jwt.sign({ _id: user._id }, process.env.JWT_RESET_PASSWORD, {
       expiresIn: "10m",
     });
-
-    /*
-  this will act as email send functionality if sendgrid account suspended
-  message is sent to user with a link that contains activation token
-  DEV MODE ONLY
-  */
-    // return res.json({
-    //   message: `Email has been sent to ${email}. Follow the instruction to activate your account`,
-    //   link: `${process.env.CLIENT_URL}/auth/activate/${token}`,
-    // });
 
     const emailData = {
       // from: process.env.EMAIL_FROM,
@@ -204,8 +184,9 @@ exports.forgotPassword = (req, res) => {
   });
 };
 
-exports.resetPassword = (req, res) => {
-  const { resetPasswordLink, newPassword } = req.body;
+exports.authorizeResetPassword = (req, res) => {
+  console.log(req.headers.resetpasswordlink);
+  const resetPasswordLink = req.headers.resetpasswordlink;
   if (resetPasswordLink) {
     jwt.verify(
       resetPasswordLink,
@@ -216,30 +197,47 @@ exports.resetPassword = (req, res) => {
             error: "Expired link! Please try again",
           });
         }
+
         User.findOne({ resetPasswordLink }, (err, user) => {
           if (err || !user) {
             return res.status(400).json({
               error: "Something went wrong! Please try again",
             });
           }
-          const updatedFields = {
-            password: newPassword,
-            resetPasswordLink: "",
-          };
-
-          user = _.extend(user, updatedFields);
-          user.save((err, result) => {
-            if (err) {
-              return res.status(400).json({
-                error: "Error resetting user password",
-              });
-            }
-            res.json({
-              message: "Password reset! Login with new password"
-            })
+          return res.json({
+            name: user.name,
+            id: user._id,
           });
         });
       }
     );
   }
+};
+
+exports.resetPassword = (req, res) => {
+  const { id, newPassword } = req.body;
+  console.log(id, newPassword);
+  User.findOne({ _id: id }, (err, user) => {
+    if (err) {
+      return res.status(400).json({
+        error: "Error resetting user password",
+      });
+    }
+    const updatedFields = {
+      password: newPassword,
+      resetPasswordLink: "",
+    };
+    user = _.extend(user, updatedFields);
+    user.save((err, result) => {
+      if (err) {
+        return res.status(400).json({
+          error: "Error resetting user password",
+        });
+      }
+      
+      res.json({
+        message: "Password reset! Login with new password",
+      });
+    });
+  });
 };

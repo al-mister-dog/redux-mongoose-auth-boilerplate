@@ -14,6 +14,8 @@ import Activate from "./pages/auth/Activate";
 import Dashboard from "./pages/user/Dashboard";
 import Private from "./pages/Private";
 import Admin from "./pages/Admin";
+import ForgotPassword from "./pages/auth/ForgotPassword";
+import ResetPassword from "./pages/auth/ResetPassword";
 
 import { isAuth } from "./utils/cookies";
 
@@ -23,8 +25,22 @@ const AppRoutes = () => {
       <Nav />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/login" element={<Login />} />
+        <Route
+          path="/signup"
+          element={
+            <RequireLogin>
+              <Signup />
+            </RequireLogin>
+          }
+        />
+        <Route
+          path="/login"
+          element={
+            <RequireLogin>
+              <Login />
+            </RequireLogin>
+          }
+        />
         <Route path="/auth/activate/:token" element={<Activate />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route
@@ -43,6 +59,15 @@ const AppRoutes = () => {
             </RequireAdminAuth>
           }
         />
+        <Route
+          path="/auth/password/forgot"
+          element={
+            <RequireLogin>
+              <ForgotPassword />
+            </RequireLogin>
+          }
+        />
+        <Route path="/auth/password/reset/:token" element={<ResetPassword />} />
       </Routes>
     </Router>
   );
@@ -63,6 +88,15 @@ function RequireAdminAuth({ children }) {
   } else {
     return <Navigate to="/" state={{ from: location }} replace />;
   }
+}
+
+function RequireLogin({ children }) {
+  let location = useLocation();
+
+  if (isAuth()) {
+    return <Navigate to={-1} state={{ from: location }} replace />;
+  }
+  return children;
 }
 
 export default AppRoutes;
